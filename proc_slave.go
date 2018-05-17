@@ -146,12 +146,14 @@ func (sp *slave) watchSignal() {
 			}
 			//listeners should be waiting on connections to close...
 		}
-		//start death-timer
-		go func() {
-			time.Sleep(sp.Config.TerminateTimeout)
-			sp.debugf("timeout. forceful shutdown")
-			os.Exit(1)
-		}()
+		/*
+			//start death-timer
+			go func() {
+				time.Sleep(sp.Config.TerminateTimeout)
+				sp.debugf("timeout. forceful shutdown")
+				os.Exit(1)
+			}()
+		*/
 	}()
 }
 

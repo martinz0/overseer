@@ -55,20 +55,22 @@ func (l *overseerListener) Accept() (net.Conn, error) {
 func (l *overseerListener) release(timeout time.Duration) {
 	//stop accepting connections - release fd
 	l.closeError = l.Listener.Close()
-	//start timer, close by force if deadline not met
-	waited := make(chan bool)
-	go func() {
-		l.wg.Wait()
-		waited <- true
-	}()
-	go func() {
-		select {
-		case <-time.After(timeout):
-			close(l.closeByForce)
-		case <-waited:
-			//no need to force close
-		}
-	}()
+	/*
+		//start timer, close by force if deadline not met
+		waited := make(chan bool)
+		go func() {
+			l.wg.Wait()
+			waited <- true
+		}()
+		go func() {
+			select {
+			case <-time.After(timeout):
+				close(l.closeByForce)
+			case <-waited:
+				//no need to force close
+			}
+		}()
+	*/
 }
 
 //blocking wait for close

@@ -321,15 +321,24 @@ func (mp *master) triggerRestart() {
 	mp.awaitingUSR1 = true
 	mp.signalledAt = time.Now()
 	mp.sendSignal(mp.Config.RestartSignal) //ask nicely to terminate
-	select {
-	case <-mp.restarted:
-		//success
-		mp.debugf("restart success")
-	case <-time.After(mp.TerminateTimeout):
-		//times up mr. process, we did ask nicely!
-		mp.debugf("graceful timeout, forcing exit")
-		mp.sendSignal(os.Kill)
-	}
+	/*
+		select {
+		case <-mp.restarted:
+			//success
+			mp.debugf("restart success")
+		case <-time.After(mp.TerminateTimeout):
+			//times up mr. process, we did ask nicely!
+			mp.debugf("graceful timeout, forcing exit")
+			mp.sendSignal(os.Kill)
+		}
+	*/
+	go func() {
+		select {
+		case <-mp.restarted:
+			//success
+			mp.debugf("restart success")
+		}
+	}()
 }
 
 //not a real fork
@@ -399,6 +408,7 @@ func (mp *master) fork() error {
 		if mp.NoRestart || !mp.restarting {
 			os.Exit(code)
 		}
+
 	case <-mp.descriptorsReleased:
 		//if descriptors are released, the program
 		//has yielded control of its sockets and
